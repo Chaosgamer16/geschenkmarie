@@ -18,20 +18,37 @@
             overflow-x: hidden;
         }
 
-        .bg-image-left, .bg-image-right {
+        /* Bild links */
+        .bg-image-left {
             position: fixed;
+            left: 0;
             top: 0;
             width: 30vw;
             height: 100vh;
-            background-image: url('file:///C:/Users/steck/Desktop/Alles/MarieGeschenk/bild.jpg');
+            background-image: url('https://raw.githubusercontent.com/Chaosgamer16/geschenkmarie/main/bild.jpg');
             background-size: contain;
             background-repeat: no-repeat;
+            background-position: left center;
             z-index: 1;
             pointer-events: none;
         }
-        .bg-image-left { left: 0; background-position: left center; }
-        .bg-image-right { right: 0; background-position: right center; }
 
+        /* Bild rechts */
+        .bg-image-right {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 30vw;
+            height: 100vh;
+            background-image: url('https://raw.githubusercontent.com/Chaosgamer16/geschenkmarie/main/bild.jpg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: right center;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Lilie oben in der Mitte */
         .top-lily {
             font-size: 140px;
             color: rgba(255, 255, 255, 0.95);
@@ -42,6 +59,7 @@
             pointer-events: none;
         }
 
+        /* Textbox über allem in der Mitte */
         .content-box {
             background-color: rgba(255, 255, 255, 0.92);
             padding: 25px;
@@ -53,7 +71,17 @@
             z-index: 10;
         }
 
-        .code-container, .guestbook-container {
+        .code-container {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #ffffff;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: fit-content;
+        }
+
+        .guestbook-container {
             display: none;
             margin-top: 15px;
             padding: 15px;
@@ -127,8 +155,15 @@
 
         function zeigeCodeBox() {
             var box = document.getElementById('codeBox');
-            document.getElementById('errorMsg').style.display = 'none';
-            box.style.display = (box.style.display === 'block') ? 'none' : 'block';
+            var errorMsg = document.getElementById('errorMsg');
+            
+            errorMsg.style.display = 'none';
+
+            if (box.style.display === 'none' || box.style.display === '') {
+                box.style.display = 'block';
+            } else {
+                box.style.display = 'none';
+            }
         }
 
         function pruefeCode() {
@@ -193,10 +228,14 @@
 </head>
 
 <body>
+    <!-- Hintergrundbilder an den Seiten -->
     <div class="bg-image-left"></div>
     <div class="bg-image-right"></div>
+
+    <!-- Lilie oben in der Mitte -->
     <div class="top-lily">⚜️</div>
 
+    <!-- Text-Container -->
     <div class="content-box">
         <h1>Hi Marie!</h1>
         <p>Ich wünsche dir alles Gute zu deinem 18. Geburtstag.</p>
@@ -208,7 +247,6 @@
             <li>
                 <a href="#" onclick="zeigeCodeBox(); return false;">Das zweite Geschenk der Code ist im ersten Geschenk enthalten.</a>
                 
-                <!-- Code-Eingabe -->
                 <div id="codeBox" class="code-container">
                     <input type="text" id="codeInput" placeholder="Code eingeben...">
                     <button onclick="pruefeCode()">Absenden</button>
