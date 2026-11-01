@@ -1,0 +1,231 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Geschenk für Marie</title>
+    <style>
+        body {
+            background-color: #002870;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .bg-image-left, .bg-image-right {
+            position: fixed;
+            top: 0;
+            width: 30vw;
+            height: 100vh;
+            background-image: url('file:///C:/Users/steck/Desktop/Alles/MarieGeschenk/bild.jpg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .bg-image-left { left: 0; background-position: left center; }
+        .bg-image-right { right: 0; background-position: right center; }
+
+        .top-lily {
+            font-size: 140px;
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 0 0 25px rgba(0, 0, 0, 0.7);
+            margin-bottom: -20px;
+            z-index: 10;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        .content-box {
+            background-color: rgba(255, 255, 255, 0.92);
+            padding: 25px;
+            border-radius: 12px;
+            max-width: 650px;
+            width: 100%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            position: relative;
+            z-index: 10;
+        }
+
+        .code-container, .guestbook-container {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        textarea {
+            width: 100%;
+            height: 80px;
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        button {
+            padding: 8px 15px;
+            background-color: #002870;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover { background-color: #001f57; }
+
+        .error-message {
+            color: #d9534f;
+            font-size: 14px;
+            margin-top: 8px;
+            display: none;
+            font-weight: bold;
+        }
+
+        .message-list {
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+
+        .message-item {
+            background: #f9f9f9;
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            border-left: 3px solid #002870;
+            word-wrap: break-word;
+        }
+    </style>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <script>
+        // Deine Firebase Echtzeit-Datenbank verknüpft mit 'geschenkmarie'
+        const firebaseConfig = {
+            databaseURL: "https://geschenkmarie-default-rtdb.europe-west1.firebasedatabase.app/"
+        };
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const database = firebase.database();
+
+        function zeigeCodeBox() {
+            var box = document.getElementById('codeBox');
+            document.getElementById('errorMsg').style.display = 'none';
+            box.style.display = (box.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function pruefeCode() {
+            var eingabe = document.getElementById('codeInput').value;
+            var errorMsg = document.getElementById('errorMsg');
+
+            if (eingabe === '19226122008') {
+                errorMsg.style.display = 'none';
+                document.getElementById('codeBox').style.display = 'none';
+                document.getElementById('guestbookBox').style.display = 'block';
+                starteEchtzeitSynchronisation();
+            } else {
+                errorMsg.style.display = 'block';
+            }
+        }
+
+        function speichereNachricht() {
+            var textInput = document.getElementById('messageInput');
+            var text = textInput.value.trim();
+
+            if (text === '') return;
+
+            // Befehl zum Löschen aller Nachrichten auf allen Geräten
+            if (text === '/clear all') {
+                database.ref('nachrichten').remove();
+                textInput.value = '';
+                return;
+            }
+
+            // Nachricht direkt in Firebase speichern
+            database.ref('nachrichten').push({
+                text: text,
+                zeitstempel: Date.now()
+            });
+
+            textInput.value = '';
+        }
+
+        function starteEchtzeitSynchronisation() {
+            var listContainer = document.getElementById('messageList');
+
+            // Hört in Echtzeit auf Änderungen in der Firebase-Datenbank
+            database.ref('nachrichten').on('value', function(snapshot) {
+                listContainer.innerHTML = '';
+                var data = snapshot.val();
+
+                if (!data) {
+                    listContainer.innerHTML = '<i>Noch keine Nachrichten gespeichert.</i>';
+                    return;
+                }
+
+                Object.keys(data).forEach(function(key) {
+                    var item = data[key];
+                    var div = document.createElement('div');
+                    div.className = 'message-item';
+                    div.innerText = item.text;
+                    listContainer.appendChild(div);
+                });
+            });
+        }
+    </script>
+</head>
+
+<body>
+    <div class="bg-image-left"></div>
+    <div class="bg-image-right"></div>
+    <div class="top-lily">⚜️</div>
+
+    <div class="content-box">
+        <h1>Hi Marie!</h1>
+        <p>Ich wünsche dir alles Gute zu deinem 18. Geburtstag.</p>
+        <p>18 Jahre alt, das ist ein schöner Erfolg! Ich wünsche dir alles Gute in deinem Leben und an deinem besonderen Tag, und hier auch.</p>
+        <p>Und auch jetzt noch einmal danke für deine Hilfe in den letzten Monaten, seitdem wir Kontakt haben, und deswegen bekommst du auch von mir was zum Geburtstag.</p>
+        
+        <ul>
+            <li><a href="https://www.feuerwehr-dieburg.de/einsaetze" target="_blank">Das erste Geschenk</a></li>
+            <li>
+                <a href="#" onclick="zeigeCodeBox(); return false;">Das zweite Geschenk der Code ist im ersten Geschenk enthalten.</a>
+                
+                <!-- Code-Eingabe -->
+                <div id="codeBox" class="code-container">
+                    <input type="text" id="codeInput" placeholder="Code eingeben...">
+                    <button onclick="pruefeCode()">Absenden</button>
+                    <div id="errorMsg" class="error-message">Falscher Code! Versuch es noch einmal.</div>
+                </div>
+
+                <!-- Text- & Speicherfenster (Gästebuch) -->
+                <div id="guestbookBox" class="guestbook-container">
+                    <h3>Nachricht hinterlassen</h3>
+                    <textarea id="messageInput" placeholder="Schreibe hier etwas rein..."></textarea><br>
+                    <button onclick="speichereNachricht()">Speichern</button>
+                    
+                    <h4>Gespeicherte Nachrichten:</h4>
+                    <div id="messageList" class="message-list"></div>
+                </div>
+            </li>
+        </ul>    
+    </div>
+</body>
+</html>
